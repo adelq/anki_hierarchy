@@ -24,6 +24,8 @@ from aqt import mw
 from anki.utils import intTime, ids2str
 from aqt.qt import *
 
+SEPARATOR = "-"
+
 
 def convert_subdecks_to_tags():
     """Main function to convert currently selected deck."""
@@ -31,7 +33,8 @@ def convert_subdecks_to_tags():
     children_decks = mw.col.decks.children(parent_deck_id)
     mw.checkpoint(_("convert subdeck to tags"))
     for child_deck_name, child_deck_id in children_decks:
-        tag = child_deck_name
+        # Use dashes as word separators to avoid multiple tags
+        tag = child_deck_name.replace(" ", SEPARATOR)
 
         # Get old card properties
         child_cids = mw.col.decks.cids(child_deck_id)
