@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from aqt import mw
 from anki.utils import intTime, ids2str
 from aqt.qt import *
+import re
 
 SEPARATOR = "-"
 
@@ -35,6 +36,14 @@ def convert_subdecks_to_tags():
     for child_deck_name, child_deck_id in children_decks:
         # Use dashes as word separators to avoid multiple tags
         tag = child_deck_name.replace(" ", SEPARATOR)
+        # Remove trailing spaces
+        tag = re.sub(r"-+::", "::", tag)
+        tag = re.sub(r"::-+", "::", tag)
+        # Remove spaces after commas
+        tag = tag.replace(",-", ",")
+        # Remove spaces around + signs
+        tag = tag.replace(" +", "+")
+        tag = tag.replace("+ ", "+")
 
         # Get old card properties
         child_cids = mw.col.decks.cids(child_deck_id)
