@@ -28,22 +28,29 @@ import re
 SEPARATOR = "-"
 
 
+def reformat_title(deck_name, separator="-"):
+    """Convert deck name with spaces to compatible and clean Anki tag name"""
+    # Replace spaces with separator (dashes) to avoid making multiple tags
+    tag = deck_name.replace(" ", separator)
+    # Remove trailing spaces
+    tag = re.sub(r"-+::", "::", tag)
+    tag = re.sub(r"::-+", "::", tag)
+    # Remove spaces after commas
+    tag = tag.replace(",-", ",")
+    # Remove spaces around + signs
+    tag = tag.replace("-+", "+")
+    tag = tag.replace("+-", "+")
+    return tag
+
+
 def convert_subdecks_to_tags():
     """Main function to convert currently selected deck."""
     parent_deck_id = mw.col.decks.selected()
     children_decks = mw.col.decks.children(parent_deck_id)
     mw.checkpoint(_("convert subdeck to tags"))
     for child_deck_name, child_deck_id in children_decks:
-        # Use dashes as word separators to avoid multiple tags
-        tag = child_deck_name.replace(" ", SEPARATOR)
-        # Remove trailing spaces
-        tag = re.sub(r"-+::", "::", tag)
-        tag = re.sub(r"::-+", "::", tag)
-        # Remove spaces after commas
-        tag = tag.replace(",-", ",")
-        # Remove spaces around + signs
-        tag = tag.replace(" +", "+")
-        tag = tag.replace("+ ", "+")
+        # Reformat deck title into an appropriate tag
+        tag = reformat_title(child_deck_name, SEPARATOR)
 
         # Get old card properties
         child_cids = mw.col.decks.cids(child_deck_id)
