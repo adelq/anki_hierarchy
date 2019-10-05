@@ -72,6 +72,22 @@ def convert_subdecks_to_tags():
     mw.requireReset()
 
 
+# Add menu item
 action = QAction("Convert subdecks to tags", mw)
 action.triggered.connect(convert_subdecks_to_tags)
 mw.form.menuTools.addAction(action)
+
+# Testing for tag cleanup
+if __name__ == "__main__":
+    import unittest
+
+    class TestReformatTitle(unittest.TestCase):
+        def test_reformat_title_basic(self):
+            assert reformat_title("zanki step decks") == "zanki-step-decks"
+            assert reformat_title("zanki::cardio path") == "zanki::cardio-path"
+
+        def test_reformat_title_punctuation(self):
+            assert reformat_title("molecular, cellular") == "molecular,cellular"
+            assert reformat_title("physiology + embryo") == "physiology+embryo"
+
+    unittest.main()
