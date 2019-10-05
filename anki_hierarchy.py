@@ -33,6 +33,7 @@ def reformat_title(deck_name, separator="-"):
     """Convert deck name with spaces to compatible and clean Anki tag name"""
     # Replace spaces with separator (dashes) to avoid making multiple tags
     tag = deck_name.replace(" ", separator)
+    tag = re.sub("%s+" % separator, separator, tag)
     # Remove apostrophes
     tag = tag.replace("'", "")
     # Remove trailing spaces
@@ -93,5 +94,9 @@ if __name__ == "__main__":
         def test_reformat_title_punctuation(self):
             assert reformat_title("molecular, cellular") == "molecular,cellular"
             assert reformat_title("physiology + embryo") == "physiology+embryo"
+
+        def test_runs_separator(self):
+            assert reformat_title("OBGYN- uWISE") == "OBGYN-uWISE"
+            assert reformat_title("Medicine - Case") == "Medicine-Case"
 
     unittest.main()
