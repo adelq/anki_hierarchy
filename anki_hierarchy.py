@@ -32,6 +32,8 @@ def reformat_title(deck_name, separator="-"):
     """Convert deck name with spaces to compatible and clean Anki tag name"""
     # Replace spaces with separator (dashes) to avoid making multiple tags
     tag = deck_name.replace(" ", separator)
+    # Remove apostrophes
+    tag = tag.replace("'", "")
     # Remove trailing spaces
     tag = re.sub(r"-+::", "::", tag)
     tag = re.sub(r"::-+", "::", tag)
