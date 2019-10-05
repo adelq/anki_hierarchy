@@ -20,10 +20,11 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from aqt import mw
-from anki.utils import intTime, ids2str
-from aqt.qt import *
 import re
+if __name__ != "__main__":
+    from aqt import mw
+    from anki.utils import intTime, ids2str
+    from aqt.qt import *
 
 SEPARATOR = "-"
 
@@ -75,9 +76,10 @@ def convert_subdecks_to_tags():
 
 
 # Add menu item
-action = QAction("Convert subdecks to tags", mw)
-action.triggered.connect(convert_subdecks_to_tags)
-mw.form.menuTools.addAction(action)
+if __name__ != "__main__":
+    action = QAction("Convert subdecks to tags", mw)
+    action.triggered.connect(convert_subdecks_to_tags)
+    mw.form.menuTools.addAction(action)
 
 # Testing for tag cleanup
 if __name__ == "__main__":
