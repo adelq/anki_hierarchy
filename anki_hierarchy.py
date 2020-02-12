@@ -25,8 +25,9 @@ if __name__ != "__main__":
     from aqt import mw
     from anki.utils import intTime, ids2str
     from aqt.qt import *
+from .config import getUserOption
 
-SEPARATOR = "-"
+SEPARATOR = getUserOption("Separator")
 
 
 def reformat_title(deck_name, separator="-"):
@@ -63,11 +64,12 @@ def convert_subdecks_to_tags():
         str_cids = ids2str(child_cids)
 
         # Move cards to new deck
-        mw.col.db.execute(
-            "update cards set usn=?, mod=?, did=? where id in " + str_cids,
-            usn, mod, parent_deck_id
-        )
-        mw.col.decks.rem(child_deck_id)
+        if getUserOption("Merge decks", True):
+            mw.col.db.execute(
+                "update cards set usn=?, mod=?, did=? where id in " + str_cids,
+                usn, mod, parent_deck_id
+            )
+            mw.col.decks.rem(child_deck_id)
 
         # New tag based on child deck name
         child_cards = (mw.col.getCard(cid) for cid in child_cids)
