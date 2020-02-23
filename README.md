@@ -25,3 +25,8 @@ error message you got and what you were trying to do. Thanks!
 This add-on was written by [Adel Qalieh](https://blog.adelqalieh.com/) and
 licensed under the GNU AGPL 3 or later. See the [LICENSE](LICENSE) file for more
 information.
+
+## Contributors
+
+* [Adel Qalieh](https://blog.adelqalieh.com/)
+* [The AnKing](https://www.ankingmed.com/)
