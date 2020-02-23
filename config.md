@@ -1,4 +1,4 @@
-* Merge decks: (false or true, without quote) wheter or not to merge all decks into one after creating tags
+* Merge decks: (false or true, without quote) whether or not to merge all decks into one after creating tags
 * Separator: (default "-") What is used to replace spaces when converting to tags 
 
 ---
