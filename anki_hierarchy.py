@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import re
 if __name__ != "__main__":
     from aqt import mw
-    from anki.utils import intTime, ids2str
+    from anki.utils import int_time, ids2str
     from anki.lang import _
     from aqt.qt import QAction
     from .config import get_user_option
@@ -53,14 +53,13 @@ def convert_subdecks_to_tags():
     """Main function to convert currently selected deck."""
     parent_deck_id = mw.col.decks.selected()
     children_decks = mw.col.decks.children(parent_deck_id)
-    mw.checkpoint(_("convert subdeck to tags"))
     for child_deck_name, child_deck_id in children_decks:
         # Reformat deck title into an appropriate tag
         tag = reformat_title(child_deck_name, SEPARATOR)
 
         # Get old card properties
         child_cids = mw.col.decks.cids(child_deck_id)
-        mod = intTime()
+        mod = int_time()
         usn = mw.col.usn()
         str_cids = ids2str(child_cids)
 
@@ -70,13 +69,12 @@ def convert_subdecks_to_tags():
                 "update cards set usn=?, mod=?, did=? where id in " + str_cids,
                 usn, mod, parent_deck_id
             )
-            mw.col.decks.rem(child_deck_id)
+            mw.col.decks.remove(child_deck_id)
 
         # New tag based on child deck name
-        child_cards = (mw.col.getCard(cid) for cid in child_cids)
+        child_cards = (mw.col.get_card(cid) for cid in child_cids)
         child_nids = set(c.nid for c in child_cards)
-        mw.col.tags.bulkAdd(list(child_nids), tag)
-    mw.requireReset()
+        mw.col.tags.bulk_add(list(child_nids), tag)
 
 
 # Add menu item
