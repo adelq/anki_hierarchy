@@ -23,12 +23,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import re
 if __name__ != "__main__":
     from aqt import mw
-    from anki.utils import intTime, ids2str
-    from anki.lang import _
+    from aqt.operations import CollectionOp
     from aqt.qt import QAction
+    from aqt.utils import tooltip
+    from anki.collection import OpChangesWithCount
+    from anki.utils import int_time, ids2str
     from .config import get_user_option
-
-SEPARATOR = get_user_option("Separator", "-")
 
 
 def reformat_title(deck_name, separator="-"):
@@ -49,34 +49,49 @@ def reformat_title(deck_name, separator="-"):
     return tag
 
 
-def convert_subdecks_to_tags():
+def background_add_tags(col):
     """Main function to convert currently selected deck."""
     parent_deck_id = mw.col.decks.selected()
     children_decks = mw.col.decks.children(parent_deck_id)
-    mw.checkpoint(_("convert subdeck to tags"))
+    separator = get_user_option("Separator", "-")
+    count = 0
     for child_deck_name, child_deck_id in children_decks:
         # Reformat deck title into an appropriate tag
-        tag = reformat_title(child_deck_name, SEPARATOR)
-
-        # Get old card properties
+        tag = reformat_title(child_deck_name, separator)
         child_cids = mw.col.decks.cids(child_deck_id)
-        mod = intTime()
-        usn = mw.col.usn()
-        str_cids = ids2str(child_cids)
-
-        # Move cards to new deck if config option set
-        if get_user_option("Merge decks", False):
-            mw.col.db.execute(
-                "update cards set usn=?, mod=?, did=? where id in " + str_cids,
-                usn, mod, parent_deck_id
-            )
-            mw.col.decks.rem(child_deck_id)
-
-        # New tag based on child deck name
-        child_cards = (mw.col.getCard(cid) for cid in child_cids)
+        child_cards = (mw.col.get_card(cid) for cid in child_cids)
         child_nids = set(c.nid for c in child_cards)
-        mw.col.tags.bulkAdd(list(child_nids), tag)
-    mw.requireReset()
+        mw.col.tags.bulk_add(list(child_nids), tag)
+        count += len(child_nids)
+
+    return OpChangesWithCount(count=count)
+
+
+def background_move_cards(col):
+    count = 0
+    parent_deck_id = mw.col.decks.selected()
+    children_decks = mw.col.decks.children(parent_deck_id)
+    for _, child_deck_id in children_decks:
+        child_cids = mw.col.decks.cids(child_deck_id)
+        mw.col.set_deck(card_ids=child_cids, deck_id=parent_deck_id)
+        count += len(child_cids)
+    mw.col.decks.remove([deck_id for _, deck_id in children_decks])
+    return OpChangesWithCount(count=count)
+
+
+def on_success(changes):
+    tooltip(f"{changes.count} notes tagged with deck name")
+
+    # Move cards to new deck if config option set
+    if get_user_option("Merge decks", False):
+        CollectionOp(
+            parent=mw,
+            op=background_move_cards
+        ).success(lambda c: tooltip(f"Moved {c.count} cards to main deck")).run_in_background()
+
+
+def convert_subdecks_to_tags():
+    CollectionOp(parent=mw, op=background_add_tags).success(on_success).run_in_background()
 
 
 # Add menu item
