@@ -12,7 +12,7 @@ or by pasting the code `1172858842` into the Anki Add-on installation box
 through **Tools→Add-ons→Browse & Install**.
 
 By default, deck names with spaces are separated with dashes (`-`). This can be
-configured with the `SEPARATOR` variable at the top of the script.
+configured with the config variable in the add-on page or in `config.json`.
 
 ## Reporting bugs
 
